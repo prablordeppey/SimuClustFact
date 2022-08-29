@@ -2,8 +2,7 @@
 
 import numpy as np
 from tensor import fold, unfold
-# from cluster import KMeans
-from utils import singular_vectors, PseudoF, _BaseClass, OneKMeans, random_membership_matrix
+from utils import SingularVectors, PseudoF, _BaseClass, OneKMeans, RandomMembershipMatrix
 from time import time
 from tabulate import tabulate
 from tandem import TWFCTA, TWCFTA
@@ -128,7 +127,7 @@ class T3Clus(_BaseClass):
 		I_i_i = np.diag(np.ones(I))
 
 		headers = ['Loop','Iteration','Loop time','BSS (%)','PseudoF','Convergence']
-		print(tabulate([],headers=headers))
+		if self.verbose: print(tabulate([],headers=headers))
 		best_elapsed_times = []
 		
 		for loop in range(1,self.n_loops+1):
@@ -145,9 +144,9 @@ class T3Clus(_BaseClass):
 			C_k_r0 = self.C_k_r
 			
 			if self.init == 'random':  # random initialization
-				if B_j_q0 is None: B_j_q0 = singular_vectors(rng.random([J,J]), Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(rng.random([K,K]), R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(rng.random([J,J]), Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(rng.random([K,K]), R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			elif self.init == 'twcfta':
 				cft = TWCFTA(random_state=self.random_state, init=twcfta_init).fit(X_i_jk, full_tensor_shape, reduced_tensor_shape)
@@ -166,9 +165,9 @@ class T3Clus(_BaseClass):
 				if loop==2: break  # run once if not random
 
 				# initializing B, C
-				if B_j_q0 is None: B_j_q0 = singular_vectors(X_j_ki@X_j_ki.T, Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(X_k_ij@X_k_ij.T, R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(X_j_ki@X_j_ki.T, Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(X_k_ij@X_k_ij.T, R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			# ----------- Start of Objective Function Definition --------------
 
@@ -199,11 +198,11 @@ class T3Clus(_BaseClass):
 
 				# updating B_j_q
 				B_j_j = X_j_ki @ np.kron(Hu_i_i-I_i_i, C_k_r0@C_k_r0.T) @ X_j_ki.T
-				B_j_q = singular_vectors(B_j_j, Q)
+				B_j_q = SingularVectors(B_j_j, Q)
 
 				# updating C_k_r
 				C_k_k = X_k_ij @ np.kron(B_j_q@B_j_q.T, Hu_i_i-I_i_i) @ X_k_ij.T
-				C_k_r = singular_vectors(C_k_k, R)
+				C_k_r = SingularVectors(C_k_k, R)
 
 				# ----------- End of factor matrices update --------------
 				
@@ -257,7 +256,7 @@ class T3Clus(_BaseClass):
 			pseudoF = round(PseudoF(BSS, RSS, full_tensor_shape, reduced_tensor_shape),4) if G not in [1,I] else None
 
 			# output results
-			print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
+			if self.verbose: print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
 
 			if (loop == 1):
 				B_j_q_simu = B_j_q
@@ -389,7 +388,7 @@ class TFKMeans(_BaseClass):
 		I_i_i = np.diag(np.ones(I))
 
 		headers = ['Loop','Iteration','Loop time','BSS (%)','PseudoF','Convergence']
-		print(tabulate([],headers=headers))
+		if self.verbose: print(tabulate([],headers=headers))
 		best_elapsed_times = []
 		
 		for loop in range(1,self.n_loops+1):
@@ -406,9 +405,9 @@ class TFKMeans(_BaseClass):
 			C_k_r0 = self.C_k_r
 			
 			if self.init == 'random':  # random initialization
-				if B_j_q0 is None: B_j_q0 = singular_vectors(rng.random([J,J]), Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(rng.random([K,K]), R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(rng.random([J,J]), Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(rng.random([K,K]), R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			# if loop==2: break  # run once if not random
 			elif self.init == 'twcfta':
@@ -433,9 +432,9 @@ class TFKMeans(_BaseClass):
 				X_k_ij = unfold(X_k_i_j, mode=0)
 
 				# initializing B, C
-				if B_j_q0 is None: B_j_q0 = singular_vectors(X_j_ki@X_j_ki.T, Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(X_k_ij@X_k_ij.T, R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(X_j_ki@X_j_ki.T, Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(X_k_ij@X_k_ij.T, R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			# ----------- Start of Objective Function Definition --------------
 
@@ -473,11 +472,11 @@ class TFKMeans(_BaseClass):
 
 				# updating B_j_q
 				B_j_j = X_j_ki @ np.kron(Hu_i_i, C_k_r0@C_k_r0.T) @ X_j_ki.T
-				B_j_q = singular_vectors(B_j_j, Q)
+				B_j_q = SingularVectors(B_j_j, Q)
 
 				# updating C_k_r
 				C_k_k = X_k_ij @ np.kron(B_j_q@B_j_q.T, Hu_i_i) @ X_k_ij.T
-				C_k_r = singular_vectors(C_k_k, R)
+				C_k_r = SingularVectors(C_k_k, R)
 
 				# ----------- End of factor matrices update --------------
 				# # updating X
@@ -537,7 +536,7 @@ class TFKMeans(_BaseClass):
 			pseudoF = round(PseudoF(BSS, RSS, full_tensor_shape, reduced_tensor_shape),4) if G not in [1,I] else None
 
 			# output results
-			print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
+			if self.verbose: print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
 
 			if (loop == 1):
 				B_j_q_simu = B_j_q
@@ -676,7 +675,7 @@ class CT3Clus(_BaseClass):
 		I_i_i = np.diag(np.ones(I))
 
 		headers = ['Loop','Iteration','Loop time','BSS (%)','PseudoF','Convergence']
-		print(tabulate([],headers=headers))
+		if self.verbose: print(tabulate([],headers=headers))
 		best_elapsed_times = []
 		
 		for loop in range(1,self.n_loops+1):
@@ -693,9 +692,9 @@ class CT3Clus(_BaseClass):
 			C_k_r0 = self.C_k_r
 			
 			if self.init == 'random':  # random initialization
-				if B_j_q0 is None: B_j_q0 = singular_vectors(rng.random([J,J]), Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(rng.random([K,K]), R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(rng.random([J,J]), Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(rng.random([K,K]), R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			# run once if not random
 			elif self.init == 'twcfta':
@@ -720,9 +719,9 @@ class CT3Clus(_BaseClass):
 				X_k_ij = unfold(X_k_i_j, mode=0)
 
 				# initializing B, C
-				if B_j_q0 is None: B_j_q0 = singular_vectors(X_j_ki@X_j_ki.T, Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(X_k_ij@X_k_ij.T, R)
-				if U_i_g0 is None: U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(X_j_ki@X_j_ki.T, Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(X_k_ij@X_k_ij.T, R)
+				if U_i_g0 is None: U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 
 			# ----------- Start of Objective Function Definition --------------
 
@@ -763,11 +762,11 @@ class CT3Clus(_BaseClass):
 
 				# updating B_j_q
 				B_j_j = X_j_ki @ np.kron(Hu_i_i-alpha*I_i_i, C_k_r0@C_k_r0.T) @ X_j_ki.T
-				B_j_q = singular_vectors(B_j_j, Q)
+				B_j_q = SingularVectors(B_j_j, Q)
 
 				# updating C_k_r
 				C_k_k = X_k_ij @ np.kron(B_j_q@B_j_q.T, Hu_i_i-alpha*I_i_i) @ X_k_ij.T
-				C_k_r = singular_vectors(C_k_k, R)
+				C_k_r = SingularVectors(C_k_k, R)
 
 				# ----------- End of factor matrices update --------------
 				# # updating X
@@ -828,7 +827,7 @@ class CT3Clus(_BaseClass):
 			pseudoF = round(PseudoF(BSS, RSS, full_tensor_shape, reduced_tensor_shape),4) if G not in [1,I] else None
 
 			# output results
-			print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
+			if self.verbose: print(tabulate([[]], headers=[loop, iteration, round(time_elapsed,4), round(BSS_percent,4), pseudoF, converged], tablefmt='plain'))
 
 			if (loop == 1):
 				B_j_q_simu = B_j_q

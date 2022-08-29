@@ -31,11 +31,13 @@ def OneKMeans(Y_i_qr, G, U_i_g=None, rng=None, seed=None):
 	if rng is None:
 		rng = np.random.default_rng(seed)
 
+	Y_i_qr = np.array(Y_i_qr)
+
 	I = Y_i_qr.shape[0]
 
 	# initialize centroids matrix
 	if U_i_g is None:
-		U_i_g = random_membership_matrix(I,G,rng=rng)
+		U_i_g = RandomMembershipMatrix(I,G,rng=rng)
 	else:
 		U_i_g = np.array(U_i_g)
 	Y_g_qr = np.linalg.inv(U_i_g.T@U_i_g) @ U_i_g.T @ Y_i_qr
@@ -59,7 +61,7 @@ def OneKMeans(Y_i_qr, G, U_i_g=None, rng=None, seed=None):
 		M = int(C_g[LC])  # number of objects in the chosen largest cluster.
 		cluster_members_indices = np.where(U_i_g[:,LC])[0]  # indices of objects in the largest cluster
 
-		U_m_2 = random_membership_matrix(I=M, G=2, rng=rng)  # initialize matrix with 2 groups
+		U_m_2 = RandomMembershipMatrix(I=M, G=2, rng=rng)  # initialize matrix with 2 groups
 		Y_2_qr = np.linalg.inv(U_m_2.T@U_m_2) @ U_m_2.T @ Y_i_qr[cluster_members_indices,:]  # 2xQR centroids matrix for subclusters
 
 		# assign each cluster member to the respective sub-cluster
@@ -76,7 +78,7 @@ def OneKMeans(Y_i_qr, G, U_i_g=None, rng=None, seed=None):
 
 	# assign each object to the respective cluster
 	for i in range(I):
-		dist = ((Y_i_qr[i,]-Y_g_qr)**2).sum(axis=1)  # calculate distance between obj and centroids.
+		dist = ((Y_i_qr[i,:]-Y_g_qr)**2).sum(axis=1)  # calculate distance between obj and centroids.
 		min_dist_cluster = dist.argmin()  # get cluster with smallest distancee from object.
 		U_i_g[i, min_dist_cluster] = 1  # assign the object to that cluster.
 
@@ -95,7 +97,7 @@ def OneKMeans(Y_i_qr, G, U_i_g=None, rng=None, seed=None):
 
 # =========== BUILDING MEMBERSHIP FUNCTION MATRIX CONSTRUCTION
 
-def random_membership_matrix(I, G, rng=None, seed=None):
+def RandomMembershipMatrix(I, G, rng=None, seed=None):
 	"""
 	Generates U_i_g membership function matrix.
 	U_i_g is a binary stochastic matrix with rows summing to 1.
@@ -129,7 +131,7 @@ def random_membership_matrix(I, G, rng=None, seed=None):
 
 # ===========  LARGEST EIGENVECTORS
 
-def singular_vectors(X, D):
+def SingularVectors(X, D):
 	"""
 	Returns first D left singular vectors of a given matrix
 	either via svd as currently implemented or eig function (commented out)

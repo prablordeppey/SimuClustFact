@@ -2,7 +2,7 @@
 
 import numpy as np
 from tensor import fold, unfold
-from utils import singular_vectors, PseudoF, _BaseClass, OneKMeans, random_membership_matrix
+from utils import SingularVectors, PseudoF, _BaseClass, OneKMeans, RandomMembershipMatrix
 from time import time
 from tabulate import tabulate
 
@@ -158,7 +158,7 @@ class TWCFTA(_BaseClass):
 
 			if U_i_g0 is None:
 
-				U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 				U_i_g_init = U_i_g0.copy()
 
 				# initial objective
@@ -219,11 +219,11 @@ class TWCFTA(_BaseClass):
 
 			# initialize B and C
 			if self.init == 'svd':
-				if B_j_q0 is None: B_j_q0 = singular_vectors(X_j_kg@X_j_kg.T, Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(X_k_gj@X_k_gj.T, R)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(X_j_kg@X_j_kg.T, Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(X_k_gj@X_k_gj.T, R)
 			else:  # random initialization
-				if B_j_q0 is None: B_j_q0 = singular_vectors(rng.random([J,J]), Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(rng.random([K,K]), R)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(rng.random([J,J]), Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(rng.random([K,K]), R)
 			
 			I_g_g = np.eye(G)
 
@@ -251,11 +251,11 @@ class TWCFTA(_BaseClass):
 
 				# updating B_j_q
 				B_j_j = X_j_kg @ np.kron(I_g_g, C_k_r0@C_k_r0.T) @ X_j_kg.T
-				B_j_q = singular_vectors(B_j_j, Q)
+				B_j_q = SingularVectors(B_j_j, Q)
 
 				# updating C_k_r
 				C_k_k = X_k_gj @ np.kron(B_j_q@B_j_q.T, I_g_g) @ X_k_gj.T
-				C_k_r = singular_vectors(C_k_k, R)
+				C_k_r = SingularVectors(C_k_k, R)
 
 				# ----------- End of factor matrices update --------------
 
@@ -473,8 +473,8 @@ class TWFCTA(_BaseClass):
 
 			# initialize B and C
 			if self.init == 'svd':
-				if B_j_q0 is None: B_j_q0 = singular_vectors(X_j_ki@X_j_ki.T, Q)
-				if C_k_r0 is None: C_k_r0 = singular_vectors(X_k_ij@X_k_ij.T, R)
+				if B_j_q0 is None: B_j_q0 = SingularVectors(X_j_ki@X_j_ki.T, Q)
+				if C_k_r0 is None: C_k_r0 = SingularVectors(X_k_ij@X_k_ij.T, R)
 			else:  # random initialization
 				if B_j_q0 is None: B_j_q0 = rng.random([J,Q])
 				if C_k_r0 is None: C_k_r0 = rng.random([K,R])
@@ -504,11 +504,11 @@ class TWFCTA(_BaseClass):
 
 				# updating B_j_q
 				B_j_j = X_j_ki @ np.kron(I_i_i, C_k_r0@C_k_r0.T) @ X_j_ki.T
-				B_j_q = singular_vectors(B_j_j, Q)
+				B_j_q = SingularVectors(B_j_j, Q)
 
 				# updating C_k_r
 				C_k_k = X_k_ij @ np.kron(B_j_q@B_j_q.T, I_i_i) @ X_k_ij.T
-				C_k_r = singular_vectors(C_k_k, R)
+				C_k_r = SingularVectors(C_k_k, R)
 
 				# ----------- End of factor matrices update --------------
 
@@ -549,7 +549,7 @@ class TWFCTA(_BaseClass):
 			# given directly as paramters
 			U_i_g0 = self.U_i_g
 			if U_i_g0 is None:
-				U_i_g0 = random_membership_matrix(I, G, rng=rng)
+				U_i_g0 = RandomMembershipMatrix(I, G, rng=rng)
 				U_i_g_init = U_i_g0.copy()
 
 				# initial objective
