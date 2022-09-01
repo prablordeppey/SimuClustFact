@@ -1,11 +1,3 @@
 {
-	"python.testing.unittestArgs": [
-		"-v",
-		"-s",
-		"./Python3",
-		"-p",
-		"test_*.py"
-	],
-	"python.testing.pytestEnabled": false,
-	"python.testing.unittestEnabled": true
+	"restructuredtext.preview.name": "docutils"
 }
