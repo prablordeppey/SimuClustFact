@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def unfold(tensor, mode):
 	"""
 	Args:
@@ -90,34 +91,34 @@ def fold(X, mode, shape):
 
 	if (mode==2): # (J,KI) => (K,I,J)
 		# folded = np.array([X[:,shape[1]*ind:shape[1]*(ind+1)].T for ind in range(X.shape[1]//shape[1])])
-		folded = np.array([X_j_ki.T[k::K] for k in range(K)])
+		folded = np.array([X.T[k::shape[0]] for k in range(shape[0])])
 
 	return folded
 
 
 class Tensor(np.ndarray):
-    '''
-    creates a tensor object from the given array matrix
-    Args:
-    -----
-        input_array (ndarray): matrix of data values
-        I (int): number of objects/units of the dataset
-        J (int): number of variables in the dataset
-        stacked (str, optional): placement of faces. possible values are 'row' or 'column'. Defaults to 'row'
-    '''
+	'''
+	creates a tensor object from the given array matrix
+	Args:
+	-----
+		input_array (ndarray): matrix of data values
+		I (int): number of objects/units of the dataset
+		J (int): number of variables in the dataset
+		stacked (str, optional): placement of faces. possible values are 'row' or 'column'. Defaults to 'row'
+	'''
 
-    def __new__(cls, input_array, I, J, stacked='row'):
-        obj = np.asarray(input_array)
+	def __new__(cls, input_array, I, J, stacked='row'):
+		obj = np.asarray(input_array)
 
-        # checks
-        if obj is None: raise ValueError('input_array cannot be None')
-        if len(obj.shape)!=2: raise ValueError(f'input_array must be a matrix, but got shape {obj.shape}')
+		# checks
+		if obj is None: raise ValueError('input_array cannot be None')
+		if len(obj.shape)!=2: raise ValueError(f'input_array must be a matrix, but got shape {obj.shape}')
 
-        # main
-        if stacked=='column':
-            obj = np.array([obj[:,J*ind:J*(ind+1)] for ind in range(obj.shape[1]//J)])  # reorder column stacked faces
-        else:  # row
-            obj = np.array([obj[I*ind:I*(ind+1),:] for ind in range(obj.shape[0]//I)])  # reorder rowstacked faces
+		# main
+		if stacked=='column':
+			obj = np.array([obj[:,J*ind:J*(ind+1)] for ind in range(obj.shape[1]//J)])  # reorder column stacked faces
+		else:  # row
+			obj = np.array([obj[I*ind:I*(ind+1),:] for ind in range(obj.shape[0]//I)])  # reorder rowstacked faces
 
-        obj = np.asarray(obj).view(cls)
-        return obj
+		obj = np.asarray(obj).view(cls)
+		return obj

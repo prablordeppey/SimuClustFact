@@ -1,7 +1,32 @@
-import setuptools
+import setuptools, os
+from Cython.Build import cythonize
 
-with open("README.rst", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as f:
+    long_description = f.read()
+
+def get_ext_paths(root_dir, exclude_files):
+    """get filepaths for cython compilation"""
+    paths = []
+
+    for root, dirs, files in os.walk(root_dir):
+        for filename in files:
+            if filename == '__init__.py':
+                continue
+
+            if os.path.splitext(filename)[1] != '.py':
+                continue
+
+            file_path = os.path.join(root, filename)
+            if file_path in exclude_files:
+                continue
+
+            paths.append(file_path)
+    return paths
+
+# exclude files from cython compilation
+EXCLUDE_FILES = [
+    '__init__.py'
+]
 
 setuptools.setup(
     name="simuclustfactor",
@@ -20,9 +45,19 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "simuclustfactor"},
+    packages=setuptools.find_packages(where="simuclustfactor"),
     python_requires=">=3.6",
-    install_requires=['numpy>=1.19.2', 'sklearn>=1.0.2'],
+    install_requires=['numpy>=1.19.2'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
+
+    ext_modules=cythonize(
+        get_ext_paths('simuclustfactor', EXCLUDE_FILES),
+        compiler_directives={'language_level': 3}
+    ),
+
     license='MIT',
 )
+
+

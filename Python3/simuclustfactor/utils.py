@@ -312,3 +312,37 @@ class _BaseClass:
 				)
 
 # ===========  END OF _BASECLASS
+
+# ===========  START OF PSEUDOF
+
+def PseudoF(bss, wss, tensor_shape, rank):
+	"""
+	The pseudo F statistic describes the ratio of between-cluster variance to within cluster variance.
+	Large values of Pseudo F indicate close-knit and separated clusters.
+	In particular, peaks in the pseudo F statistic are indicators of greater cluster separation.
+	This implementation is a generalization provided by Rocci and Vichi.
+
+	Args:
+	-----
+		bss (float): between cluster sum of squares deviance
+		wss (float): within cluster sum of squares deviance
+		tensor_shape (tuple): (I,J,K) tensor dimensions
+		rank (tuple): (G,Q,R) G clusters, Q components for variables, R components for Occasions
+	
+	Reference:
+	----------
+		...	[1] T. Caliński & J Harabasz (1974).
+			A dendrite method for cluster analysis
+			Communications in Statistics, 3:1, 1-27, DOI: 10.1080/03610927408827101
+
+		..	[2] Roberto Rocci and Maurizio Vichi (2005).
+			Three-mode component analysis with crisp or fuzzy partition of units. 
+			Psychometrika, 70:715–736, 02 2005.
+	"""
+	I,J,K = tensor_shape
+	G,Q,R = rank
+	db = (G-1)*Q*R + (J-Q)*Q + (K-R)*R
+	dw = I*J*K - G*Q*R + (J-Q)*Q + (K-R)*R
+	return (bss/db)/(wss/dw)
+
+# ===========  END OF PSEUDOF
