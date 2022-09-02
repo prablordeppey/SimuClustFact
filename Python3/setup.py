@@ -30,7 +30,7 @@ EXCLUDE_FILES = [
 
 setuptools.setup(
     name="simuclustfactor",
-    version="1.0.0",
+    version="0.1.0",
     author="Ablordeppey Prosper",
     author_email="prablordeppey@gmail.com",
     description="Simultaneous Component and Clustering Models for Three-way Data: Within and Between Approaches.",
@@ -45,15 +45,15 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "simuclustfactor"},
-    packages=setuptools.find_packages(where="simuclustfactor"),
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
-    install_requires=['numpy>=1.19.2'],
+    install_requires=['numpy>=1.19.2', 'tabulate>=0.8.9'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
 
     ext_modules=cythonize(
-        get_ext_paths('simuclustfactor', EXCLUDE_FILES),
+        get_ext_paths('src/simuclustfactor', EXCLUDE_FILES),
         compiler_directives={'language_level': 3}
     ),
 

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "numpy>=1.19.2", "Cython>=0.29.21"]
+requires = ["setuptools>=42", "wheel", "numpy>=1.19.2", "tabulate>=0.8.9", "Cython>=0.29.21"]
 build-backend = "setuptools.build_meta"
 
 [pytest]
